@@ -20,27 +20,40 @@ flutter analyze
 flutter test
 ```
 
-运行 Linux 桌面应用：
+在项目目录启动 Linux 桌面应用（无需先进入开发 shell）：
 
 ```sh
-flutter run -d linux
+nix run
 ```
 
-### Linux 图形驱动兼容
+也可以在 `nix develop` 内启动：
+
+```sh
+flutter-run-linux
+```
+
+可向启动器传递 Flutter 参数，例如 `nix run -- --verbose`。
+启动器会在锁定的 Nix 开发环境中构建和运行当前目录的 Flutter 项目。
+
+### Linux 图形驱动兼容与配置范围
 
 在非 NixOS 系统上，Nix 的 OpenGL/EGL 库可能无法直接使用系统显卡驱动。
-若遇到 `No provider of eglGetPlatformDisplayEXT found` 等错误，可在 Wayland 桌面尝试以下已验证的软件渲染方式：
+启动器使用 `flake.lock` 中同一份 nixpkgs 提供的 Mesa，无需额外运行 `nix shell nixpkgs#mesa` 或查询全局 registry。
+它只在启动器及其子进程中设置以下兼容配置：
 
-```sh
-nix shell nixpkgs#mesa --command bash -c '
-  export __EGL_VENDOR_LIBRARY_FILENAMES="$(nix eval --raw nixpkgs#mesa.outPath)/share/glvnd/egl_vendor.d/50_mesa.json"
-  export LIBGL_ALWAYS_SOFTWARE=1
-  export GDK_BACKEND=wayland
-  nix develop --command flutter run -d linux --enable-software-rendering --no-enable-impeller
-'
-```
+- `__EGL_VENDOR_LIBRARY_FILENAMES` 指向 Nix Mesa 的 EGL 配置。
+- `LIBGL_ALWAYS_SOFTWARE=1` 启用软件渲染。
+- `GDK_BACKEND=wayland` 使用 Wayland。
+- Flutter 启动时附带 `--enable-software-rendering --no-enable-impeller`。
 
-软件渲染用于兼容性回退，不代表硬件加速已配置；上述命令要求当前会话支持 Wayland。
+此启动器要求已有可用的 Wayland 桌面会话，软件渲染不代表硬件加速已配置。
+`nix develop` 本身不会设置上述图形变量，普通 `flutter` 命令也不会被替换；
+显卡驱动已兼容时仍可直接使用 `flutter run -d linux`。
+
+这些配置不会写入系统目录、shell 配置或用户 profile，不使用 `nix profile install`。
+**Nix 不是容器或零写入沙箱**：Nix 仍会写入 `/nix/store`、维护缓存和 GC roots；
+Flutter/Dart 也可能写入用户缓存，以及项目内的 `.dart_tool/`、`build/` 等生成目录。
+应用运行时仍连接主机的桌面服务。若要求完全不写主机缓存或更强的运行时隔离，应使用虚拟机或另外配置的容器环境。
 
 ### Web
 
