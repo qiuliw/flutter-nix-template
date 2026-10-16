@@ -30,14 +30,14 @@ flutter run -d web-server --web-hostname 127.0.0.1 --web-port 8080
 nix flake check --impure
 ```
 
-## 配置说明
+## 使用边界
 
-- Flutter、构建工具和 nixGL 都在 `flake.nix` 声明，Nix 输入由 `flake.lock` 锁定。
-- 直接使用 nixGL 上游的自动选择包装器；`--impure` 用于读取主机显卡驱动信息，不是向系统安装配置。
-- NVIDIA 首次使用或主机驱动更新后可能需要下载匹配的驱动组件。锁文件不锁定主机驱动。
-- 上游存在新版 NVIDIA 驱动识别问题（[nixGL #220](https://github.com/nix-community/nixGL/issues/220)）；当前主机实测可经 Mesa 路径启动，但未验证 NVIDIA 硬件加速。
-- 不修改系统、shell 配置或用户 profile；Nix/Flutter 仍使用 store、缓存和项目构建目录，不等于容器隔离。
 - 默认项目名为 `flutter_app`，应用标识前缀为 `com.example`，请按需修改。
 - 各平台工程已生成，但 Android SDK、模拟器和 Xcode 需另行配置；iOS/macOS 构建需要 macOS。
+- Nix 不等于容器隔离；当前 nixGL 还有新版 NVIDIA 驱动识别限制，启动成功不代表 NVIDIA 硬件加速正常。
+
+## 原理文档
+
+[Nix 开发环境与 Linux 图形驱动](docs/nix-development.md)：集中说明开发环境、驱动分层、nixGL、overlays、`--impure` 及可复现性的边界。
 
 Flutter 文档：[docs.flutter.dev](https://docs.flutter.dev/)。
