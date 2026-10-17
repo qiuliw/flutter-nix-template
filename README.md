@@ -4,8 +4,6 @@
 
 ## 开始使用
 
-点击 **Use this template → Create a new repository**，克隆新仓库后在项目目录运行：
-
 ```sh
 nix develop --impure
 flutter pub get
