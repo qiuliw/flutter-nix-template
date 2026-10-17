@@ -26,6 +26,9 @@
         };
 
         devShells.default = pkgs.mkShell {
+          # 使用匹配的桌面 schema，避免继承主机或 Snap 的不兼容版本。
+          GSETTINGS_SCHEMA_DIR = pkgs.glib.getSchemaPath pkgs.gsettings-desktop-schemas;
+
           packages = with pkgs; [
             flutter
             # Linux 桌面构建所需的编译工具和图形库。

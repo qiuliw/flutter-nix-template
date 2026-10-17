@@ -27,3 +27,7 @@ flutter run -d web-server --web-hostname 127.0.0.1 --web-port 8080
 ```sh
 nix flake check --impure
 ```
+
+## 原理文档
+
+[从 nixGL 到 Linux 桌面应用基建](docs/linux-desktop-foundations.md)
