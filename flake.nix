@@ -37,7 +37,7 @@
             libGL
             libepoxy
             # 自动选择显卡包装器；使用 nix develop --impure 读取主机驱动信息。
-            pkgs.nixgl.auto.nixGLDefault
+            nixgl.auto.nixGLDefault
           ];
         };
       };
